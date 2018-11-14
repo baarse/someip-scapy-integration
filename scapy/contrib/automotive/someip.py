@@ -34,6 +34,7 @@ class _SOMEIP_RequestId(Packet):
 
 class SOMEIP(Packet):
     """ SOME/IP Packet."""
+    
     # Default values
     PROTOCOL_VERSION = 0x01
     INTERFACE_VERSION = 0x01
@@ -108,6 +109,7 @@ class SOMEIP(Packet):
             p = p[:4] + struct.pack("!I", l) + p[8:]
         return p + pay
 
+    #TODO: check if answer is expected or not
     def answers(self, other):
         if other.__class__ == self.__class__:
             return self.payload.answers(other.payload)
@@ -115,6 +117,6 @@ class SOMEIP(Packet):
 
 
 for i in range(15):
-  bind_layers(UDP,SOMEIP,sport=30490+i)
-  bind_layers(TCP,SOMEIP,sport=30490+i)
+  bind_layers(UDP, SOMEIP, sport=30490+i)
+  bind_layers(TCP, SOMEIP, sport=30490+i)
 
