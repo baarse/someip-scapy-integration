@@ -1,0 +1,42 @@
+##########
+##########
+
++ Basic operations
+
+= Load module
+
+load_contrib("automotive.someip")
+
+= Check MessageId with method_id
+a = SOMEIP()
+p = a.msg_id
+p.srv_id = 0x1111
+p.method_id = 0x0222
+p.event_id = 0x0333
+
+p.sub_id = 0
+
+assert (struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+
+assert ((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x00)
+
+assert ((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0222)
+
+assert ((binascii.hexlify(str(p)) == "11110222")
+
+= Check MessageId with event_id
+
+p = SOMEIP._SOMEIP_MessageId()
+p.srv_id = 0x1111
+p.method_id = 0x0222
+p.event_id = 0x0333
+
+p.sub_id = 1
+
+assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+
+assert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x80)
+
+assertassert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x80)
+
+assert(binascii.hexlify(str(p)) == "11118333")
