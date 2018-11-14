@@ -1,7 +1,5 @@
-from scapy.fields import *
-from scapy.packet import *
 from scapy.all import *
-from scapy.contrib.automotive.genivi.someip import SOMEIP
+from scapy.contrib.automotive.someip import SOMEIP
 from scapy.layers.inet6 import IP6Field
 import ctypes
 import collections
