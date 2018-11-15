@@ -1,32 +1,32 @@
 ##########
 ##########
 
-+ Basic operations
++ Test MessageId
 
 = Load module
 
 load_contrib("automotive.someip")
 
 = Check MessageId with method_id
-a = SOMEIP()
-p = a.msg_id
+p = SOMEIP().msg_id
 p.srv_id = 0x1111
 p.method_id = 0x0222
 p.event_id = 0x0333
 
 p.sub_id = 0
 
-assert (struct.unpack("!H",str(p)[:2])[0] == 0x1111)
 
-assert ((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x00)
+assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
 
-assert ((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0222)
+assert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x00)
 
-assert ((binascii.hexlify(str(p)) == "11110222")
+assert((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0222)
+
+assert(binascii.hexlify(str(p)[0:8]) == "11110222")
 
 = Check MessageId with event_id
 
-p = SOMEIP._SOMEIP_MessageId()
+p = SOMEIP().msg_id
 p.srv_id = 0x1111
 p.method_id = 0x0222
 p.event_id = 0x0333
@@ -37,6 +37,68 @@ assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
 
 assert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x80)
 
-assertassert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x80)
+assert((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0333)
 
 assert(binascii.hexlify(str(p)) == "11118333")
+
++ Test RequestId
+
+= Request Id
+p = SOMEIP().req_id
+p.client_id = 0x1111
+p.session_id = 0x2222
+
+assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+
+assert(struct.unpack("!H",str(p)[2:4])[0] == 0x2222)
+
+assert(binascii.hexlify(str(p)) == "11112222")
+
++ Test SOMEIP
+
+= Someip
+
+p = SOMEIP()
+
+pstr = binascii.hexlify(str(p))
+binstr = "00"*4+"00"*3+"08"+"00"*4+"01010000"
+assert(pstr == binstr)
+
+p.payload = Raw(binascii.unhexlify("DEADBEEF"))
+pstr = binascii.hexlify(str(p))
+binstr = "00"*4+"00"*3+"0c"+"00"*4+"01010000"+"deadbeef"
+assert(pstr == binstr)
+
+p.payload = Raw('')
+pstr = binascii.hexlify(str(p))
+binstr = "00"*4+"00"*3+"08"+"00"*4+"01010000"
+assert(pstr == binstr)
+
++ Test SOMEIP_SubPackages
+
+p = SOMEIP()
+
+= MessageId subpackage
+p.msg_id.srv_id = 0x1111
+p.msg_id.method_id = 0x0222
+p.msg_id.event_id = 0x0333
+
+p.msg_id.sub_id = 0
+pstr = binascii.hexlify(str(p))
+binstr = "11110222"+"00"*3+"08"+"00"*4+"01010000"
+assert(pstr == binstr)
+
+p.msg_id.sub_id = 1
+pstr = binascii.hexlify(str(p))
+binstr = "11118333"+"00"*3+"08"+"00"*4+"01010000"
+assert(pstr == binstr)
+
+= RequestId subpackage
+del(p)
+p = SOMEIP()
+p.req_id.client_id = 0x1111
+p.req_id.session_id = 0x2222
+
+pstr = binascii.hexlify(str(p))
+binstr = "00"*4+"00"*3+"08"+"11112222"+"01010000"
+assert(pstr == binstr)
