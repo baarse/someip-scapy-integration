@@ -107,7 +107,8 @@ class SOMEIP(Packet):
 
     def post_build(self, p, pay):
         l = self.len
-        # length computation : RequestID + PROTOVER_IFACEVER_TYPE_RETCODE + PAYLOAD
+        # length computation : RequestID + PROTOVER_IFACEVER_TYPE_RETCODE
+        # + PAYLOAD
         if (l is None):
             l = self.LEN_OFFSET + len(pay)
             p = p[:4] + struct.pack("!I", l) + p[8:]
