@@ -7,16 +7,18 @@ import collections
 
 class _SDPacketBase(Packet):
     """ base class to be used among all SD Packet definitions."""
-    # use this dictionary to set default values for desired fields (mostly on subclasses
-    # where not all fields are defined locally)
+    # use this dictionary to set default values for desired fields (mostly on
+    # subclasses where not all fields are defined locally)
     # - key : field_name, value : desired value
     # - it will be used from 'init_fields' function, upon packet initialization
     #
-    # example : _defaults = {'field_1_name':field_1_value,'field_2_name':field_2_value}
+    # example : _defaults = 
+    #  {'field_1_name':field_1_value,'field_2_name':field_2_value}
     _defaults = {}
 
     def _set_defaults(self):
-        """ goes through '_defaults' dict setting field default values (for those that have been defined)."""
+        """ goes through '_defaults' dict setting field default values
+        (for those that have been defined)."""
         for key in self._defaults.keys():
             try:
                 self.get_field(key)
@@ -27,7 +29,8 @@ class _SDPacketBase(Packet):
 
     def init_fields(self):
         """ perform initialization of packet fields with desired values.
-            NOTE : this funtion will only be called *once* upon class (or subclass) construction
+            NOTE : this funtion will only be called *once* upon class
+            (or subclass) construction
         """
         Packet.init_fields(self)
         self._set_defaults()
@@ -179,13 +182,12 @@ class _SDOption_IP6(_SDOption):
 
 
 class SDOption_Config(_SDOption):
-    # offset to be added upon length calculation (corresponding to header's "Reserved" field)
+    # offset to be added upon length calculation
+    # (corresponding to header's "Reserved" field)
     LEN_OFFSET = 0x01
 
     name = "Config Option"
-    # default values specification
     _defaults = {'type': _SDOption.CFG_TYPE}
-    # package fields definiton
     fields_desc = [
         _SDOption_Header,
         StrField("cfg_str", "")]
@@ -201,10 +203,8 @@ class SDOption_Config(_SDOption):
 
 class SDOption_LoadBalance(_SDOption):
     name = "LoadBalance Option"
-    # default values specification
     _defaults = {'type': _SDOption.LOADBALANCE_TYPE,
                  'len': _SDOption.LOADBALANCE_LEN}
-    # package fields definiton
     fields_desc = [
         _SDOption_Header,
         ShortField("priority", 0),
@@ -214,21 +214,18 @@ class SDOption_LoadBalance(_SDOption):
 # SDOPTIONS : IPv4-specific
 class SDOption_IP4_EndPoint(_SDOption_IP4):
     name = "IP4 EndPoint Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP4_ENDPOINT_TYPE,
                  'len': _SDOption.IP4_ENDPOINT_LEN}
 
 
 class SDOption_IP4_Multicast(_SDOption_IP4):
     name = "IP4 Multicast Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP4_MCAST_TYPE,
                  'len': _SDOption.IP4_MCAST_LEN}
 
 
 class SDOption_IP4_SD_EndPoint(_SDOption_IP4):
     name = "IP4 SDEndPoint Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP4_SDENDPOINT_TYPE,
                  'len': _SDOption.IP4_SDENDPOINT_LEN}
 
@@ -236,21 +233,18 @@ class SDOption_IP4_SD_EndPoint(_SDOption_IP4):
 # SDOPTIONS : IPv6-specific
 class SDOption_IP6_EndPoint(_SDOption_IP6):
     name = "IP6 EndPoint Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP6_ENDPOINT_TYPE,
                  'len': _SDOption.IP6_ENDPOINT_LEN}
 
 
 class SDOption_IP6_Multicast(_SDOption_IP6):
     name = "IP6 Multicast Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP6_MCAST_TYPE,
                  'len': _SDOption.IP6_MCAST_LEN}
 
 
 class SDOption_IP6_SD_EndPoint(_SDOption_IP6):
     name = "IP6 SDEndPoint Option"
-    # default values specification
     _defaults = {'type': _SDOption.IP6_SDENDPOINT_TYPE,
                  'len': _SDOption.IP6_SDENDPOINT_LEN}
 
@@ -262,7 +256,8 @@ class SD(_SDPacketBase):
     """
     SD Packet
 
-    NOTE :   when adding 'entries' or 'options', do not use list.append() method but create a new list
+    NOTE :   when adding 'entries' or 'options', do not use list.append() 
+    method but create a new list
     e.g. :  p = SD()
             p.option_array = [SDOption_Config(),SDOption_IP6_EndPoint()]
     """
@@ -274,7 +269,6 @@ class SD(_SDPacketBase):
     SOMEIP_MSG_TYPE = SOMEIP.TYPE_NOTIFICATION
 
     name = "SD"
-    # Flags definition: {"name":(mask,offset)}
     _sdFlag = collections.namedtuple('Flag', 'mask offset')
     FLAGSDEF = {
         "REBOOT": _sdFlag(mask=0x80, offset=7),  # ReBoot flag
@@ -291,13 +285,15 @@ class SD(_SDPacketBase):
                         length_from=lambda pkt: pkt.len_entry_array),
         FieldLenField("len_option_array", None,
                       length_of="option_array", fmt="!I"),
-        PacketListField("option_array", None, cls=_SDOption, length_from=lambda pkt: pkt.len_option_array)]
+        PacketListField("option_array", None, cls=_SDOption,
+                        length_from=lambda pkt: pkt.len_option_array)]
 
     def getFlag(self, name):
         """ get particular flag from bitfield."""
         name = name.upper()
         if (name in self.FLAGSDEF):
-            return ((self.flags & self.FLAGSDEF[name].mask) >> self.FLAGSDEF[name].offset)
+            return ((self.flags & self.FLAGSDEF[name].mask) >>
+                    self.FLAGSDEF[name].offset)
         else:
             return None
 
@@ -305,7 +301,8 @@ class SD(_SDPacketBase):
         """
         Set particular flag on bitfield.
          :param str name : name of the flag to set (see SD.FLAGSDEF)
-         :param int value : either 0x1 or 0x0 (provided int will be ANDed with 0x01)
+         :param int value : either 0x1 or 0x0 (provided int will be 
+          ANDed with 0x01)
         """
         name = name.upper()
         if (name in self.FLAGSDEF):
@@ -315,7 +312,8 @@ class SD(_SDPacketBase):
     def setEntryArray(self, entry_list):
         """
         Add entries to entry_array.
-        :param entry_list: list of entries to be added. Single entry object also accepted
+        :param entry_list: list of entries to be added. Single entry object
+        also accepted
         """
         if (isinstance(entry_list, list)):
             self.entry_array = entry_list
@@ -325,7 +323,8 @@ class SD(_SDPacketBase):
     def setOptionArray(self, option_list):
         """
         Add options to option_array.
-        :param option_list: list of options to be added. Single option object also accepted
+        :param option_list: list of options to be added. Single option object
+        also accepted
         """
         if (isinstance(option_list, list)):
             self.option_array = option_list
