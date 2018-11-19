@@ -114,9 +114,9 @@ class SOMEIP(Packet):
             p = p[:4] + struct.pack("!I", l) + p[8:]
         return p + pay
 
-    # TODO: check if answer is expected or not
     def answers(self, other):
-        if other.__class__ == self.__class__:
+        if (other.__class__ == self.__class__) and
+        (self.msg_type == TYPE_REQUEST):
             return self.payload.answers(other.payload)
         return 0
 
