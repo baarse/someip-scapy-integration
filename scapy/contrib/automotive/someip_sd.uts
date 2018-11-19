@@ -26,7 +26,7 @@ p_str = binascii.hexlify(str(p))
 bin_str = "011122003333444455666666deadbeef"
 assert(p_str == bin_str)
 
-= fields setting : N_OPT
+= fields setting2
 # value above 4 bits, serialized packet should feature  0x1 and 0x2
 del (p)
 p = SDEntry_Service()
@@ -39,7 +39,9 @@ assert(len(p_str) / 2 == SDEntry_Service.OVERALL_LEN)
 
 = Payload guess
 p_entry_srv = SDEntry_Service()
-assert(SDEntry_Service().guess_payload_class(str(p_entry_srv)) == SDEntry_Service)
+
+assert(SDEntry_Service().guess_payload_class(str(p_entry_srv)) ==
+       SDEntry_Service)
 
 + SD Entry Eventgroup
 
@@ -47,169 +49,181 @@ assert(SDEntry_Service().guess_payload_class(str(p_entry_srv)) == SDEntry_Servic
 p = SDEntry_EventGroup()
 assert(len(binascii.hexlify(str(p))) / 2 == SDEntry_EventGroup.OVERALL_LEN)
 
-# = fields setting
-# p.index_1 = 0x11
-# p.index_2 = 0x22
-# p.srv_id = 0x3333
-# p.inst_id = 0x4444
-# p.major_ver = 0x55
-# p.ttl = 0x666666
-# p.cnt = 0x7
-# p.eventgroup_id = 0x8888
-#
-# p_str = binascii.hexlify(str(p))
-# bin_str = "06112200333344445566666600078888"
-# assert(p_str == bin_str)
-#
-# = Payload guess
-# p_entry = sd._SDEntry()
-# p_entry_evtgrp = sd.SDEntry_EventGroup()
-#
-# assert(p_entry.guess_payload_class(str(p_entry_evtgrp)) == sd.SDEntry_EventGroup)
-#
-# +SD Option Config
-# p = sd.SDOption_Config()
-#
-# = pkg type
-# assert(p.type == sd._SDOption.CFG_TYPE)
-#
-# = length without payload
-# assert(len(binascii.hexlify(str(p))) / 2 == sd._SDOption.CFG_OVERALL_LEN)
-#
-# = add payload and check length
-# p.cfg_str = "5abc=x7def=1230"
-# assert(binascii.hexlify(str(p)) == "00100100" + binascii.hexlify("5abc=x7def=1230"))
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_Config)
-#
-# + SD Option Load Balance
-# p = sd.SDOption_LoadBalance()
-#
-# = pkg type & lengths (static and overall)
-# assert(p.type == sd._SDOption.LOADBALANCE_TYPE)
-# assert(p.len == sd._SDOption.LOADBALANCE_LEN)
-# assert(len(binascii.hexlify(str(p))) / 2 == sd._SDOption.LOADBALANCE_OVERALL_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_LoadBalance)
-#
-# +SD Option IP4 Endpoint
-# p = sd.SDOption_IP4_EndPoint()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP4_ENDPOINT_TYPE)
-# assert(p.len == sd._SDOption.IP4_ENDPOINT_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP4_EndPoint)
-#
-# +SD Option IP4 Multicast
-# p = sd.SDOption_IP4_Multicast()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP4_MCAST_TYPE)
-# assert(p.len == sd._SDOption.IP4_MCAST_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP4_Multicast)
-#
-# +SD OPTION IP4 SD EndPoint
-# p = sd.SDOption_IP4_SD_EndPoint()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP4_SDENDPOINT_TYPE)
-# assert(p.len == sd._SDOption.IP4_SDENDPOINT_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP4_SD_EndPoint)
-#
-# +SD Option IP6 End Point
-# p = sd.SDOption_IP6_EndPoint()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP6_ENDPOINT_TYPE)
-# assert(p.len == sd._SDOption.IP6_ENDPOINT_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP6_EndPoint)
-#
-# +SD Option IP6 Multicast
-# p = sd.SDOption_IP6_Multicast()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP6_MCAST_TYPE)
-# assert(p.len == sd._SDOption.IP6_MCAST_LEN)
-#
-# # Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP6_Multicast)
-#
-# +SD OPTION IP6 SD EndPoint
-# p = sd.SDOption_IP6_SD_EndPoint()
-#
-# = pkg type & length
-# assert(p.type == sd._SDOption.IP6_SDENDPOINT_TYPE)
-# assert(p.len == sd._SDOption.IP6_SDENDPOINT_LEN)
-#
-# = Payload guess
-# p_option = sd._SDOption()
-# assert(p_option.guess_payload_class(str(p)) == sd.SDOption_IP6_SD_EndPoint)
-#
-# + SD Flags
-# p = sd.SD()
-#
-# p.setFlag("REBOOT", 1)
-# assert(p.flags == 0x80)
-# p.setFlag("REBOOT", 0)
-# assert(p.flags == 0x00)
-# p.setFlag("UNICAST", 1)
-# assert(p.flags == 0x40)
-# p.setFlag("UNICAST", 0)
-# assert(p.flags == 0x00)
-#
-# p.setFlag("REBOOT", 1)
-# p.setFlag("UNICAST", 1)
-# assert(p.flags == 0xc0)
-#
-# +SD Get Someip Packet
-# p_sd = sd.SD()
-#
-# sd_len = binascii.hexlify(str(p_sd))
-#
-# p_someip = p_sd.getSomeip()
-# assert(len(binascii.hexlify(str(p_someip))) / 2, someip.SOMEIP._OVERALL_LEN_NOPAYLOAD)
-#
-# p = p_sd.getSomeip(stacked=True)
-# assert(len(binascii.hexlify(str(p))) / 2, someip.SOMEIP._OVERALL_LEN_NOPAYLOAD + 12)
-#
-# + SD
-# p = sd.SD()
-#
-# = length of package without entries nor options
-# assert(len(binascii.hexlify(str(p))) / 2 == 12)
-#
-# = some Entries to array and size check
-# p.setEntryArray([sd.SDEntry_Service(), sd.SDEntry_EventGroup()])
-# assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
-# p.setEntryArray([])
-# assert(struct.unpack("!L", str(p)[4:8])[0] == 0)
-#
-# = some Options to array and size check
-# p.setOptionArray([sd.SDOption_IP4_EndPoint(), sd.SDOption_IP4_EndPoint()])
-# assert(struct.unpack("!L", str(p)[8:12])[0] == 24)
-# p.setOptionArray([])
-# assert(struct.unpack("!L", str(p)[8:12])[0] == 0)
-#
-# = some Entries&Options to array and size check
-# p.setEntryArray([sd.SDEntry_Service(), sd.SDEntry_EventGroup()])
-# p.setOptionArray([sd.SDOption_IP4_EndPoint(), sd.SDOption_IP4_EndPoint()])
-# assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
-# assert(struct.unpack("!L", str(p)[40:44])[0] == 24)
-#
+= fields setting
+p.index_1 = 0x11
+p.index_2 = 0x22
+p.srv_id = 0x3333
+p.inst_id = 0x4444
+p.major_ver = 0x55
+p.ttl = 0x666666
+p.cnt = 0x7
+p.eventgroup_id = 0x8888
+
+p_str = binascii.hexlify(str(p))
+bin_str = "06112200333344445566666600078888"
+assert(p_str == bin_str)
+
+= Payload guess
+p_entry_evtgrp = SDEntry_EventGroup()
+
+assert(SDEntry_EventGroup().guess_payload_class(
+    str(p_entry_evtgrp)) == SDEntry_EventGroup)
+
++ SD Option Config
+
+= pkg type
+p = SDOption_Config()
+print(p.type)
+assert(p.type == 0x01)
+
+= length without payload
+assert(len(binascii.hexlify(str(p))) / 2 == 4)
+
+= add payload and check length
+p.cfg_str = "5abc=x7def=1230"
+assert(binascii.hexlify(str(p)) == "00100100" +
+       binascii.hexlify("5abc=x7def=1230"))
+
+= Payload guess
+assert(SDOption_Config().guess_payload_class(str(p)) == SDOption_Config)
+
++ SD Option Load Balance
+
+= pkg type & lengths(static and overall)
+p = SDOption_LoadBalance()
+
+assert(p.type == 0x02)
+assert(p.len == 0x05)
+assert(len(binascii.hexlify(str(p))) / 2 == 8)
+
+= Payload guess
+assert(SDOption_LoadBalance().guess_payload_class(
+    str(p)) == SDOption_LoadBalance)
+
++SD Option IP4 Endpoint
+
+= pkg type & length
+p = SDOption_IP4_EndPoint()
+
+assert(p.type == 0x04)
+assert(p.len == 0x0009)
+
+= Payload guess
+assert(SDOption_IP4_EndPoint().guess_payload_class(
+    str(p)) == SDOption_IP4_EndPoint)
+
++SD Option IP4 Multicast
+
+= pkg type & length
+p = SDOption_IP4_Multicast()
+
+assert(p.type == 0x14)
+assert(p.len == 0x0009)
+
+= Payload guess
+assert(SDOption_IP4_Multicast().guess_payload_class(
+    str(p)) == SDOption_IP4_Multicast)
+
++SD OPTION IP4 SD EndPoint
+
+= pkg type & length
+p = SDOption_IP4_SD_EndPoint()
+
+assert(p.type == 0x24)
+assert(p.len == 0x0009)
+
+= Payload guess
+assert(SDOption_IP4_SD_EndPoint().guess_payload_class(
+    str(p)) == SDOption_IP4_SD_EndPoint)
+
++SD Option IP6 End Point
+
+= pkg type & length
+del(p)
+p = SDOption_IP6_EndPoint()
+
+assert(p.type == 0x06)
+assert(p.len == 0x0015)
+
+= Payload guess
+assert(SDOption_IP6_EndPoint().guess_payload_class(
+    str(p)) == SDOption_IP6_EndPoint)
+
++SD Option IP6 Multicast
+
+= pkg type & length
+del(p)
+p = SDOption_IP6_Multicast()
+
+assert(p.type == 0x16)
+assert(p.len == 0x0015)
+
+= Payload guess
+assert(SDOption_IP6_Multicast().guess_payload_class(
+    str(p)) == SDOption_IP6_Multicast)
+
++SD OPTION IP6 SD EndPoint
+
+= pkg type & length
+p = SDOption_IP6_SD_EndPoint()
+
+assert(p.type == 0x26)
+assert(p.len == 0x015)
+
+= Payload guess
+assert(SDOption_IP6_SD_EndPoint().guess_payload_class(
+    str(p)) == SDOption_IP6_SD_EndPoint)
+
++ SD Flags
+= Checking the flags
+p = SD()
+
+p.setFlag("REBOOT", 1)
+assert(p.flags == 0x80)
+p.setFlag("REBOOT", 0)
+assert(p.flags == 0x00)
+p.setFlag("UNICAST", 1)
+assert(p.flags == 0x40)
+p.setFlag("UNICAST", 0)
+assert(p.flags == 0x00)
+
+p.setFlag("REBOOT", 1)
+p.setFlag("UNICAST", 1)
+assert(p.flags == 0xc0)
+
++SD Get Someip Packet
+= Check someip packet
+p_sd = SD()
+
+sd_len = binascii.hexlify(str(p_sd))
+
+p_someip = p_sd.getSomeip()
+assert(len(binascii.hexlify(str(p_someip))) /
+       2 == SOMEIP._OVERALL_LEN_NOPAYLOAD)
+
+p = p_sd.getSomeip(stacked=True)
+assert(len(binascii.hexlify(str(p))) / 2 == SOMEIP._OVERALL_LEN_NOPAYLOAD + 12)
+
++ SD
+
+= length of package without entries nor options
+p = SD()
+assert(len(binascii.hexlify(str(p))) / 2 == 12)
+
+= some Entries to array and size check
+p.setEntryArray([SDEntry_Service(), SDEntry_EventGroup()])
+assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
+p.setEntryArray([])
+assert(struct.unpack("!L", str(p)[4:8])[0] == 0)
+
+= some Options to array and size check
+p.setOptionArray([SDOption_IP4_EndPoint(), SDOption_IP4_EndPoint()])
+assert(struct.unpack("!L", str(p)[8:12])[0] == 24)
+p.setOptionArray([])
+assert(struct.unpack("!L", str(p)[8:12])[0] == 0)
+
+= some Entries & Options to array and size check
+p.setEntryArray([SDEntry_Service(), SDEntry_EventGroup()])
+p.setOptionArray([SDOption_IP4_EndPoint(), SDOption_IP4_EndPoint()])
+assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
+assert(struct.unpack("!L", str(p)[40:44])[0] == 24)

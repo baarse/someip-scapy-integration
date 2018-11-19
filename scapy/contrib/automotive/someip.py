@@ -13,8 +13,10 @@ class _SOMEIP_MessageId(Packet):
     fields_desc = [
         ShortField("srv_id", 0),
         BitEnumField("sub_id", 0, 1, {0: "METHOD_ID", 1: "EVENT_ID"}),
-        ConditionalField(BitField("method_id", 0, 15), lambda pkt: pkt.sub_id == 0),
-        ConditionalField(BitField("event_id", 0, 15), lambda pkt: pkt.sub_id == 1)
+        ConditionalField(BitField("method_id", 0, 15),
+                         lambda pkt: pkt.sub_id == 0),
+        ConditionalField(BitField("event_id", 0, 15),
+                         lambda pkt: pkt.sub_id == 1)
     ]
 
     def extract_padding(self, p):
@@ -34,7 +36,7 @@ class _SOMEIP_RequestId(Packet):
 
 class SOMEIP(Packet):
     """ SOME/IP Packet."""
-    
+
     # Default values
     PROTOCOL_VERSION = 0x01
     INTERFACE_VERSION = 0x01
@@ -69,9 +71,11 @@ class SOMEIP(Packet):
     name = "SOME/IP"
 
     fields_desc = [
-        PacketField("msg_id", _SOMEIP_MessageId(), _SOMEIP_MessageId),  # MessageID
+        PacketField("msg_id", _SOMEIP_MessageId(),
+                    _SOMEIP_MessageId),  # MessageID
         IntField("len", None),  # Length
-        PacketField("req_id", _SOMEIP_RequestId(), _SOMEIP_RequestId),  # RequestID
+        PacketField("req_id", _SOMEIP_RequestId(),
+                    _SOMEIP_RequestId),  # RequestID
         ByteField("proto_ver", PROTOCOL_VERSION),  # Protocol version
         ByteField("iface_ver", INTERFACE_VERSION),  # Interface version
         ByteEnumField("msg_type", TYPE_REQUEST, {  # -- Message type --
@@ -109,7 +113,7 @@ class SOMEIP(Packet):
             p = p[:4] + struct.pack("!I", l) + p[8:]
         return p + pay
 
-    #TODO: check if answer is expected or not
+    # TODO: check if answer is expected or not
     def answers(self, other):
         if other.__class__ == self.__class__:
             return self.payload.answers(other.payload)
@@ -117,6 +121,5 @@ class SOMEIP(Packet):
 
 
 for i in range(15):
-  bind_layers(UDP, SOMEIP, sport=30490+i)
-  bind_layers(TCP, SOMEIP, sport=30490+i)
-
+    bind_layers(UDP, SOMEIP, sport=30490 + i)
+    bind_layers(TCP, SOMEIP, sport=30490 + i)
