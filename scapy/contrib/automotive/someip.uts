@@ -16,11 +16,11 @@ p.event_id = 0x0333
 p.sub_id = 0
 
 
-assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+assert(struct.unpack("!H", str(p)[:2])[0] == 0x1111)
 
-assert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x00)
+assert((struct.unpack("!B", str(p)[2:3])[0] & 0x80) == 0x00)
 
-assert((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0222)
+assert((struct.unpack("!H", str(p)[2:4])[0] & ~0x8000) == 0x0222)
 
 assert(binascii.hexlify(str(p)[0:8]) == "11110222")
 
@@ -33,11 +33,11 @@ p.event_id = 0x0333
 
 p.sub_id = 1
 
-assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+assert(struct.unpack("!H", str(p)[:2])[0] == 0x1111)
 
-assert((struct.unpack("!B",str(p)[2:3])[0] & 0x80) == 0x80)
+assert((struct.unpack("!B", str(p)[2:3])[0] & 0x80) == 0x80)
 
-assert((struct.unpack("!H",str(p)[2:4])[0] & ~0x8000) == 0x0333)
+assert((struct.unpack("!H", str(p)[2:4])[0] & ~0x8000) == 0x0333)
 
 assert(binascii.hexlify(str(p)) == "11118333")
 
@@ -48,9 +48,9 @@ p = SOMEIP().req_id
 p.client_id = 0x1111
 p.session_id = 0x2222
 
-assert(struct.unpack("!H",str(p)[:2])[0] == 0x1111)
+assert(struct.unpack("!H", str(p)[:2])[0] == 0x1111)
 
-assert(struct.unpack("!H",str(p)[2:4])[0] == 0x2222)
+assert(struct.unpack("!H", str(p)[2:4])[0] == 0x2222)
 
 assert(binascii.hexlify(str(p)) == "11112222")
 
@@ -61,17 +61,17 @@ assert(binascii.hexlify(str(p)) == "11112222")
 p = SOMEIP()
 
 pstr = binascii.hexlify(str(p))
-binstr = "00"*4+"00"*3+"08"+"00"*4+"01010000"
+binstr = "00" * 4 + "00" * 3 + "08" + "00" * 4 + "01010000"
 assert(pstr == binstr)
 
 p.payload = Raw(binascii.unhexlify("DEADBEEF"))
 pstr = binascii.hexlify(str(p))
-binstr = "00"*4+"00"*3+"0c"+"00"*4+"01010000"+"deadbeef"
+binstr = "00" * 4 + "00" * 3 + "0c" + "00" * 4 + "01010000" + "deadbeef"
 assert(pstr == binstr)
 
 p.payload = Raw('')
 pstr = binascii.hexlify(str(p))
-binstr = "00"*4+"00"*3+"08"+"00"*4+"01010000"
+binstr = "00" * 4 + "00" * 3 + "08" + "00" * 4 + "01010000"
 assert(pstr == binstr)
 
 + Test SOMEIP_SubPackages
@@ -85,12 +85,12 @@ p.msg_id.event_id = 0x0333
 
 p.msg_id.sub_id = 0
 pstr = binascii.hexlify(str(p))
-binstr = "11110222"+"00"*3+"08"+"00"*4+"01010000"
+binstr = "11110222" + "00" * 3 + "08" + "00" * 4 + "01010000"
 assert(pstr == binstr)
 
 p.msg_id.sub_id = 1
 pstr = binascii.hexlify(str(p))
-binstr = "11118333"+"00"*3+"08"+"00"*4+"01010000"
+binstr = "11118333" + "00" * 3 + "08" + "00" * 4 + "01010000"
 assert(pstr == binstr)
 
 = RequestId subpackage
@@ -100,5 +100,5 @@ p.req_id.client_id = 0x1111
 p.req_id.session_id = 0x2222
 
 pstr = binascii.hexlify(str(p))
-binstr = "00"*4+"00"*3+"08"+"11112222"+"01010000"
+binstr = "00" * 4 + "00" * 3 + "08" + "11112222" + "01010000"
 assert(pstr == binstr)
