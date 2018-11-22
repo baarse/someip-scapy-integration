@@ -11,7 +11,7 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -27,11 +27,13 @@
 # Copyright (C) Sebastian Baar <sebastian.baar@gmx.de>
 # This program is published under a GPLv2 license
 
+import ctypes
+import collections
+
 from scapy.all import *
 from scapy.contrib.automotive.someip import SOMEIP
 from scapy.layers.inet6 import IP6Field
-import ctypes
-import collections
+from scapy.compat import orb
 
 
 class _SDPacketBase(Packet):
@@ -41,7 +43,7 @@ class _SDPacketBase(Packet):
     # - key : field_name, value : desired value
     # - it will be used from 'init_fields' function, upon packet initialization
     #
-    # example : _defaults = 
+    # example : _defaults =
     #  {'field_1_name':field_1_value,'field_2_name':field_2_value}
     _defaults = {}
 
@@ -96,8 +98,8 @@ class _SDEntry(_SDPacketBase):
 
     def guess_payload_class(self, payload):
         """ decode SDEntry depending on its type."""
-        pl_type = struct.unpack(
-            _SDEntry.TYPE_FMT, payload[_SDEntry.TYPE_PAYLOAD_I])[0]
+        pl_type = orb(payload[_SDEntry.TYPE_PAYLOAD_I])
+
         if (pl_type in _SDEntry.TYPE_SRV):
             return (SDEntry_Service)
         elif (pl_type in _SDEntry.TYPE_EVTGRP):
@@ -162,7 +164,7 @@ class _SDOption(_SDPacketBase):
 
     def guess_payload_class(self, payload):
         """ decode SDOption depending on its type."""
-        pl_type = struct.unpack(">B", payload[2])[0]
+        pl_type = orb(payload[2])
 
         if (pl_type == _SDOption.CFG_TYPE):
             return (SDOption_Config)
