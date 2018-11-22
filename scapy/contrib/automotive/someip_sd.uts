@@ -11,7 +11,7 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -33,12 +33,11 @@
 
 =load module
 load_contrib("automotive.someip_sd")
-sd = SD()
-p = SDEntry_Service()
 
 = packet length
+p = SDEntry_Service()
 
-assert(len(binascii.hexlify(str(p))) / 2 == SDEntry_Service.OVERALL_LEN)
+assert(len(bytes(p)) == SDEntry_Service.OVERALL_LEN)
 
 = fields setting
 p.type = SDEntry_Service.TYPE_SRV_OFFERSERVICE
@@ -50,8 +49,8 @@ p.major_ver = 0x55
 p.ttl = 0x666666
 p.minor_ver = 0xdeadbeef
 
-p_str = binascii.hexlify(str(p))
-bin_str = "011122003333444455666666deadbeef"
+p_str = bytes(p)
+bin_str = b"\x01\x11\x22\x00\x33\x33\x44\x44\x55\x66\x66\x66\xde\xad\xbe\xef"
 assert(p_str == bin_str)
 
 = fields setting2
@@ -60,22 +59,21 @@ del (p)
 p = SDEntry_Service()
 p.n_opt_1 = 0xf1
 p.n_opt_2 = 0xf2
-p_str = binascii.hexlify(str(p))
-bin_str = "00" * 3 + "12" + "00" * 12
+p_str = bytes(p)
+bin_str = b"\x00\x00\x00\x12\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 assert(p_str == bin_str)
-assert(len(p_str) / 2 == SDEntry_Service.OVERALL_LEN)
+assert(len(p_str) == SDEntry_Service.OVERALL_LEN)
 
 = Payload guess
 p_entry_srv = SDEntry_Service()
-
-assert(SDEntry_Service().guess_payload_class(str(p_entry_srv)) ==
+assert(SDEntry_Service().guess_payload_class(bytes(p_entry_srv)) ==
        SDEntry_Service)
 
 + SD Entry Eventgroup
 
 = packet length
 p = SDEntry_EventGroup()
-assert(len(binascii.hexlify(str(p))) / 2 == SDEntry_EventGroup.OVERALL_LEN)
+assert(len(bytes(p)) == SDEntry_EventGroup.OVERALL_LEN)
 
 = fields setting
 p.index_1 = 0x11
@@ -87,33 +85,32 @@ p.ttl = 0x666666
 p.cnt = 0x7
 p.eventgroup_id = 0x8888
 
-p_str = binascii.hexlify(str(p))
-bin_str = "06112200333344445566666600078888"
+p_str = bytes(p)
+bin_str = b"\x06\x11\x22\x00\x33\x33\x44\x44\x55\x66\x66\x66\x00\x07\x88\x88"
 assert(p_str == bin_str)
 
 = Payload guess
 p_entry_evtgrp = SDEntry_EventGroup()
 
 assert(SDEntry_EventGroup().guess_payload_class(
-    str(p_entry_evtgrp)) == SDEntry_EventGroup)
+    bytes(p_entry_evtgrp)) == SDEntry_EventGroup)
 
 + SD Option Config
 
 = pkg type
 p = SDOption_Config()
-print(p.type)
 assert(p.type == 0x01)
 
 = length without payload
-assert(len(binascii.hexlify(str(p))) / 2 == 4)
+assert(len(bytes(p)) == 4)
 
 = add payload and check length
-p.cfg_str = "5abc=x7def=1230"
-assert(binascii.hexlify(str(p)) == "00100100" +
-       binascii.hexlify("5abc=x7def=1230"))
+p.cfg_str = binascii.hexlify(b"5abc=x7def=1230")
+assert(bytes(p) == b"\x00\x1f\x01\x00" +
+       binascii.hexlify(b"5abc=x7def=1230"))
 
 = Payload guess
-assert(SDOption_Config().guess_payload_class(str(p)) == SDOption_Config)
+assert(SDOption_Config().guess_payload_class(bytes(p)) == SDOption_Config)
 
 + SD Option Load Balance
 
@@ -122,11 +119,11 @@ p = SDOption_LoadBalance()
 
 assert(p.type == 0x02)
 assert(p.len == 0x05)
-assert(len(binascii.hexlify(str(p))) / 2 == 8)
+assert(len(bytes(p)) == 8)
 
 = Payload guess
 assert(SDOption_LoadBalance().guess_payload_class(
-    str(p)) == SDOption_LoadBalance)
+    bytes(p)) == SDOption_LoadBalance)
 
 +SD Option IP4 Endpoint
 
@@ -138,7 +135,7 @@ assert(p.len == 0x0009)
 
 = Payload guess
 assert(SDOption_IP4_EndPoint().guess_payload_class(
-    str(p)) == SDOption_IP4_EndPoint)
+    bytes(p)) == SDOption_IP4_EndPoint)
 
 +SD Option IP4 Multicast
 
@@ -150,7 +147,7 @@ assert(p.len == 0x0009)
 
 = Payload guess
 assert(SDOption_IP4_Multicast().guess_payload_class(
-    str(p)) == SDOption_IP4_Multicast)
+    bytes(p)) == SDOption_IP4_Multicast)
 
 +SD OPTION IP4 SD EndPoint
 
@@ -162,7 +159,7 @@ assert(p.len == 0x0009)
 
 = Payload guess
 assert(SDOption_IP4_SD_EndPoint().guess_payload_class(
-    str(p)) == SDOption_IP4_SD_EndPoint)
+    bytes(p)) == SDOption_IP4_SD_EndPoint)
 
 +SD Option IP6 End Point
 
@@ -175,7 +172,7 @@ assert(p.len == 0x0015)
 
 = Payload guess
 assert(SDOption_IP6_EndPoint().guess_payload_class(
-    str(p)) == SDOption_IP6_EndPoint)
+    bytes(p)) == SDOption_IP6_EndPoint)
 
 +SD Option IP6 Multicast
 
@@ -188,7 +185,7 @@ assert(p.len == 0x0015)
 
 = Payload guess
 assert(SDOption_IP6_Multicast().guess_payload_class(
-    str(p)) == SDOption_IP6_Multicast)
+    bytes(p)) == SDOption_IP6_Multicast)
 
 +SD OPTION IP6 SD EndPoint
 
@@ -200,7 +197,7 @@ assert(p.len == 0x015)
 
 = Payload guess
 assert(SDOption_IP6_SD_EndPoint().guess_payload_class(
-    str(p)) == SDOption_IP6_SD_EndPoint)
+    bytes(p)) == SDOption_IP6_SD_EndPoint)
 
 + SD Flags
 = Checking the flags
@@ -223,35 +220,34 @@ assert(p.flags == 0xc0)
 = Check someip packet
 p_sd = SD()
 
-sd_len = binascii.hexlify(str(p_sd))
+sd_len = bytes(p_sd)
 
 p_someip = p_sd.getSomeip()
-assert(len(binascii.hexlify(str(p_someip))) /
-       2 == SOMEIP._OVERALL_LEN_NOPAYLOAD)
+assert(len(bytes(p_someip)) == SOMEIP._OVERALL_LEN_NOPAYLOAD)
 
 p = p_sd.getSomeip(stacked=True)
-assert(len(binascii.hexlify(str(p))) / 2 == SOMEIP._OVERALL_LEN_NOPAYLOAD + 12)
+assert(len(bytes(p)) == SOMEIP._OVERALL_LEN_NOPAYLOAD + 12)
 
 + SD
 
 = length of package without entries nor options
 p = SD()
-assert(len(binascii.hexlify(str(p))) / 2 == 12)
+assert(len(bytes(p)) == 12)
 
 = some Entries to array and size check
 p.setEntryArray([SDEntry_Service(), SDEntry_EventGroup()])
-assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
+assert(struct.unpack("!L", bytes(p)[4:8])[0] == 32)
 p.setEntryArray([])
-assert(struct.unpack("!L", str(p)[4:8])[0] == 0)
+assert(struct.unpack("!L", bytes(p)[4:8])[0] == 0)
 
 = some Options to array and size check
 p.setOptionArray([SDOption_IP4_EndPoint(), SDOption_IP4_EndPoint()])
-assert(struct.unpack("!L", str(p)[8:12])[0] == 24)
+assert(struct.unpack("!L", bytes(p)[8:12])[0] == 24)
 p.setOptionArray([])
-assert(struct.unpack("!L", str(p)[8:12])[0] == 0)
+assert(struct.unpack("!L", bytes(p)[8:12])[0] == 0)
 
 = some Entries & Options to array and size check
 p.setEntryArray([SDEntry_Service(), SDEntry_EventGroup()])
 p.setOptionArray([SDOption_IP4_EndPoint(), SDOption_IP4_EndPoint()])
-assert(struct.unpack("!L", str(p)[4:8])[0] == 32)
-assert(struct.unpack("!L", str(p)[40:44])[0] == 24)
+assert(struct.unpack("!L", bytes(p)[4:8])[0] == 32)
+assert(struct.unpack("!L", bytes(p)[40:44])[0] == 24)
