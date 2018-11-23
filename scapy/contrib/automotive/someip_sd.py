@@ -48,8 +48,6 @@ class _SDPacketBase(Packet):
     _defaults = {}
 
     def _set_defaults(self):
-        """ goes through '_defaults' dict setting field default values
-        (for those that have been defined)."""
         for key in self._defaults.keys():
             try:
                 self.get_field(key)
@@ -59,10 +57,6 @@ class _SDPacketBase(Packet):
                 self.setfieldval(key, self._defaults[key])
 
     def init_fields(self):
-        """ perform initialization of packet fields with desired values.
-            NOTE : this funtion will only be called *once* upon class
-            (or subclass) construction
-        """
         Packet.init_fields(self)
         self._set_defaults()
 
@@ -71,18 +65,14 @@ class _SDPacketBase(Packet):
 #  - Service
 #  - EventGroup
 class _SDEntry(_SDPacketBase):
-    """ Base class for SDEntry_* packages."""
     TYPE_FMT = ">B"
     TYPE_PAYLOAD_I = 0
-    # ENTRY TYPES : SERVICE
     TYPE_SRV_FINDSERVICE = 0x00
     TYPE_SRV_OFFERSERVICE = 0x01
     TYPE_SRV = (TYPE_SRV_FINDSERVICE, TYPE_SRV_OFFERSERVICE)
-    # ENTRY TYPES : EVENTGROUP
     TYPE_EVTGRP_SUBSCRIBE = 0x06
     TYPE_EVTGRP_SUBSCRIBE_ACK = 0x07
     TYPE_EVTGRP = (TYPE_EVTGRP_SUBSCRIBE, TYPE_EVTGRP_SUBSCRIBE_ACK)
-    # overall len (UT usage)
     OVERALL_LEN = 16
 
     fields_desc = [
@@ -97,7 +87,6 @@ class _SDEntry(_SDPacketBase):
         X3BytesField("ttl", 0)]
 
     def guess_payload_class(self, payload):
-        """ decode SDEntry depending on its type."""
         pl_type = orb(payload[_SDEntry.TYPE_PAYLOAD_I])
 
         if (pl_type in _SDEntry.TYPE_SRV):
@@ -107,7 +96,6 @@ class _SDEntry(_SDPacketBase):
 
 
 class SDEntry_Service(_SDEntry):
-    """ Service Entry."""
     _defaults = {"type": _SDEntry.TYPE_SRV_FINDSERVICE}
 
     name = "Service Entry"
@@ -117,7 +105,6 @@ class SDEntry_Service(_SDEntry):
 
 
 class SDEntry_EventGroup(_SDEntry):
-    """ EventGroup Entry."""
     _defaults = {"type": _SDEntry.TYPE_EVTGRP_SUBSCRIBE}
 
     name = "Eventgroup Entry"
@@ -139,13 +126,10 @@ class SDEntry_EventGroup(_SDEntry):
 # - IPv4 EndPoint
 # - IPv6 EndPoint
 class _SDOption(_SDPacketBase):
-    """ Base class for SDOption_* packages."""
     CFG_TYPE = 0x01
-    # overall length of CFG SDOption,empty 'cfg_str' (to be used from UT)
     CFG_OVERALL_LEN = 4
     LOADBALANCE_TYPE = 0x02
     LOADBALANCE_LEN = 0x05
-    # overall length of LB SDOption (to be used from UT)
     LOADBALANCE_OVERALL_LEN = 8
     IP4_ENDPOINT_TYPE = 0x04
     IP4_ENDPOINT_LEN = 0x0009
@@ -153,17 +137,16 @@ class _SDOption(_SDPacketBase):
     IP4_MCAST_LEN = 0x0009
     IP4_SDENDPOINT_TYPE = 0x24
     IP4_SDENDPOINT_LEN = 0x0009
-    IP4_OVERALL_LEN = 12  # overall length of IP4 SDOption (to be used from UT)
+    IP4_OVERALL_LEN = 12
     IP6_ENDPOINT_TYPE = 0x06
     IP6_ENDPOINT_LEN = 0x0015
     IP6_MCAST_TYPE = 0x16
     IP6_MCAST_LEN = 0x0015
     IP6_SDENDPOINT_TYPE = 0x26
     IP6_SDENDPOINT_LEN = 0x0015
-    IP6_OVERALL_LEN = 24  # overall length of IP6 SDOption (to be used from UT)
+    IP6_OVERALL_LEN = 24
 
     def guess_payload_class(self, payload):
-        """ decode SDOption depending on its type."""
         pl_type = orb(payload[2])
 
         if (pl_type == _SDOption.CFG_TYPE):
@@ -213,8 +196,6 @@ class _SDOption_IP6(_SDOption):
 
 
 class SDOption_Config(_SDOption):
-    # offset to be added upon length calculation
-    # (corresponding to header's "Reserved" field)
     LEN_OFFSET = 0x01
 
     name = "Config Option"
@@ -224,7 +205,6 @@ class SDOption_Config(_SDOption):
         StrField("cfg_str", "")]
 
     def post_build(self, p, pay):
-        # length computation excluding 16b_length and 8b_type
         l = self.len
         if (l is None):
             l = len(self.cfg_str) + self.LEN_OFFSET
@@ -242,7 +222,6 @@ class SDOption_LoadBalance(_SDOption):
         ShortField("weight", 0)]
 
 
-# SDOPTIONS : IPv4-specific
 class SDOption_IP4_EndPoint(_SDOption_IP4):
     name = "IP4 EndPoint Option"
     _defaults = {'type': _SDOption.IP4_ENDPOINT_TYPE,
@@ -261,7 +240,6 @@ class SDOption_IP4_SD_EndPoint(_SDOption_IP4):
                  'len': _SDOption.IP4_SDENDPOINT_LEN}
 
 
-# SDOPTIONS : IPv6-specific
 class SDOption_IP6_EndPoint(_SDOption_IP6):
     name = "IP6 EndPoint Option"
     _defaults = {'type': _SDOption.IP6_ENDPOINT_TYPE,
@@ -302,8 +280,8 @@ class SD(_SDPacketBase):
     name = "SD"
     _sdFlag = collections.namedtuple('Flag', 'mask offset')
     FLAGSDEF = {
-        "REBOOT": _sdFlag(mask=0x80, offset=7),  # ReBoot flag
-        "UNICAST": _sdFlag(mask=0x40, offset=6)  # UniCast flag
+        "REBOOT": _sdFlag(mask=0x80, offset=7),
+        "UNICAST": _sdFlag(mask=0x40, offset=6)
     }
 
     name = "SD"
@@ -320,7 +298,6 @@ class SD(_SDPacketBase):
                         length_from=lambda pkt: pkt.len_option_array)]
 
     def getFlag(self, name):
-        """ get particular flag from bitfield."""
         name = name.upper()
         if (name in self.FLAGSDEF):
             return ((self.flags & self.FLAGSDEF[name].mask) >>
@@ -329,44 +306,25 @@ class SD(_SDPacketBase):
             return None
 
     def setFlag(self, name, value):
-        """
-        Set particular flag on bitfield.
-         :param str name : name of the flag to set (see SD.FLAGSDEF)
-         :param int value : either 0x1 or 0x0 (provided int will be 
-          ANDed with 0x01)
-        """
         name = name.upper()
         if (name in self.FLAGSDEF):
-            self.flags = (self.flags & (ctypes.c_ubyte(~self.FLAGSDEF[name].mask).value)) | (
+            self.flags = (self.flags &
+                          (ctypes.c_ubyte(~self.FLAGSDEF[name].mask).value)) | (
                 (value & 0x01) << self.FLAGSDEF[name].offset)
 
     def setEntryArray(self, entry_list):
-        """
-        Add entries to entry_array.
-        :param entry_list: list of entries to be added. Single entry object
-        also accepted
-        """
         if (isinstance(entry_list, list)):
             self.entry_array = entry_list
         else:
             self.entry_array = [entry_list]
 
     def setOptionArray(self, option_list):
-        """
-        Add options to option_array.
-        :param option_list: list of options to be added. Single option object
-        also accepted
-        """
         if (isinstance(option_list, list)):
             self.option_array = option_list
         else:
             self.option_array = [option_list]
 
     def getSomeip(self, stacked=False):
-        """
-        return SD-initialized SOME/IP packet
-        :param stacked: boolean. Either just SOME/IP packet or stacked over SD-self
-        """
         p = SOMEIP()
         p.msg_id.srv_id = SD.SOMEIP_MSGID_SRVID
         p.msg_id.sub_id = SD.SOMEIP_MSGID_SUBID
