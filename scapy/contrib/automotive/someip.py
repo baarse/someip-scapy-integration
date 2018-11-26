@@ -138,8 +138,12 @@ class SOMEIP(Packet):
         return p + pay
 
     def answers(self, other):
-        if (other.__class__ == self.__class__):
-            return self.payload.answers(other.payload)
+        if other.__class__ == self.__class__:
+            if (REQUEST_NO_RETURN or REQUEST_NO_RETURN_ACK) \
+                    not in self.msg_type:
+                return self.payload.answers(other.payload)
+            else:
+                return 0
         return 0
 
 
